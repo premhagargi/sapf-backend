@@ -1,3 +1,4 @@
+// middleware/loggingMiddleware.js
 const loggingMiddleware = (req, res, next) => {
   // Record start time
   const startTime = Date.now();
