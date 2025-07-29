@@ -271,29 +271,70 @@ router.delete(
   restrictTo('superadmin'),
   async (req, res) => {
     try {
-      if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+      const adminId = req.params.id;
+      console.log('adminId:', adminId);
+      console.log('token id:', String(req.admin.id));
+
+      // Validate MongoDB ObjectId
+      if (!mongoose.Types.ObjectId.isValid(adminId)) {
         return res.status(400).json(
           formatResponse(400, 'error', 'Invalid admin ID')
         );
       }
 
-      const deleted = await Admin.findByIdAndDelete(req.params.id).lean();
+      // Prevent self-deletion
+      if (String(req.admin.id) === String(adminId)) {
+        return res.status(403).json(
+          formatResponse(403, 'error', 'You cannot delete your own account')
+        );
+      }
 
-      if (!deleted) {
+      // Fetch admin to delete and count of superadmins in parallel
+      const [adminToDelete, superadminCount] = await Promise.all([
+        Admin.findById(adminId).lean(),
+        Admin.countDocuments({ role: 'superadmin' })
+      ]);
+
+      // Admin not found
+      if (!adminToDelete) {
         return res.status(404).json(
           formatResponse(404, 'error', 'Admin not found')
         );
       }
 
+      // Prevent deleting the last superadmin
+      if (adminToDelete.role === 'superadmin' && superadminCount <= 1) {
+        return res.status(403).json(
+          formatResponse(403, 'error', 'Cannot delete the last superadmin')
+        );
+      }
+
+      // Delete admin
+      await Admin.findByIdAndDelete(adminId);
+
+      // Audit log
+      console.log(
+        `[${new Date().toISOString()}] Admin "${req.admin.name}" (${req.admin.id}) deleted admin "${adminToDelete.name}" (${adminToDelete._id})`
+      );
+
+      // Success response
       res.status(200).json(
         formatResponse(200, 'success', 'Admin deleted successfully')
       );
     } catch (err) {
       res.status(500).json(
-        formatResponse(500, 'error', 'Failed to delete admin', null, err.message)
+        formatResponse(
+          500,
+          'error',
+          'Failed to delete admin',
+          null,
+          err.message
+        )
       );
     }
   }
 );
+
+
 
 module.exports = router;
