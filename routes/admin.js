@@ -272,8 +272,6 @@ router.delete(
   async (req, res) => {
     try {
       const adminId = req.params.id;
-      console.log('adminId:', adminId);
-      console.log('token id:', String(req.admin.id));
 
       // Validate MongoDB ObjectId
       if (!mongoose.Types.ObjectId.isValid(adminId)) {
