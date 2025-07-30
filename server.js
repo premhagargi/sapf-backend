@@ -2,6 +2,8 @@ const express = require('express');
 const mongoose = require('mongoose');
 const dotenv = require('dotenv');
 const cors = require('cors');
+const fs = require('fs');
+const path = require('path');
 const { authMiddleware } = require('./middleware/authMiddleware');
 
 dotenv.config();
@@ -12,56 +14,40 @@ app.use(express.json());
 
 let isDBConnected = false;
 
+// HTML file paths
+const errorPagePath = path.join(__dirname, 'views', 'error.html');
+const successPagePath = path.join(__dirname, 'views', 'success.html');
+
 app.get('/', (req, res) => {
   if (!isDBConnected) {
-    return res.status(500).send(`
-      <html>
-        <head><title>Server Error</title></head>
-        <body style="text-align:center;padding-top:100px;font-family:sans-serif;">
-          <h1>⚠️ Server is running but database is not connected</h1>
-          <p>Please check MongoDB connection.</p>
-        </body>
-      </html>
-    `);
+    try {
+      const errorPage = fs.readFileSync(errorPagePath, 'utf8');
+      return res.status(500).send(errorPage);
+    } catch (error) {
+      console.error('Error loading error page:', error);
+      return res.status(500).json({ 
+        error: 'Database Connection Failed', 
+        message: 'MongoDB is not connected' 
+      });
+    }
   }
 
-  res.send(`
-    <html>
-      <head>
-        <title>Shree Allamaprabhu Foundation</title>
-        <style>
-          body {
-            font-family: Arial, sans-serif;
-            background-color: #f5f5f5;
-            color: #333;
-            text-align: center;
-            padding-top: 100px;
-          }
-          h1 {
-            color: #2c3e50;
-          }
-          p {
-            font-size: 18px;
-          }
-          .container {
-            max-width: 600px;
-            margin: 0 auto;
-            padding: 20px;
-            background: white;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
-            border-radius: 10px;
-          }
-        </style>
-      </head>
-      <body>
-        <div class="container">
-          <h1>🚀 Shree Allamaprabhu Foundation</h1>
-          <p>Welcome to the Management API</p>
-          <p>✅ Server and MongoDB are up and running.</p>
-        </div>
-      </body>
-    </html>
-  `);
+  try {
+    const successPage = fs.readFileSync(successPagePath, 'utf8');
+    res.send(successPage);
+  } catch (error) {
+    console.error('Error loading success page:', error);
+    res.json({ 
+      status: 'online', 
+      message: 'Shree Allamaprabhu Foundation - Management API System',
+      database: 'connected',
+      services: {
+        authentication: 'active',
+        cors: 'enabled',
+        api: 'ready'
+      }
+    });
+  }
 });
 
 // Routes
@@ -76,7 +62,7 @@ mongoose.connect(process.env.MONGO_URI)
   .then(() => {
     isDBConnected = true;
     console.log('MongoDB connected');
-    
+        
     const PORT = process.env.PORT || 5000;
     app.listen(PORT, () => {
       console.log(`Server running on port ${PORT}`);

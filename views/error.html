@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Server Error - Shree Allamaprabhu Foundation</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      
+      body {
+        font-family: 'Geist', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+        background: #ffffff;
+        min-height: 100vh;
+        overflow: hidden;
+        position: relative;
+      }
+      
+      .container {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 100vh;
+        padding: 20px;
+        position: relative;
+        z-index: 2;
+      }
+      
+      .error-card {
+        background: #ffffff;
+        border: 1px solid #e5e5e5;
+        border-radius: 8px;
+        padding: 32px 24px;
+        text-align: center;
+        max-width: 400px;
+        width: 100%;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+      }
+      
+      .error-icon {
+        font-size: 24px;
+        margin-bottom: 16px;
+      }
+      
+      h1 {
+        color: #000000;
+        font-size: 1.5rem;
+        font-weight: 600;
+        margin-bottom: 12px;
+      }
+      
+      p {
+        color: #666666;
+        font-size: 0.875rem;
+        line-height: 1.5;
+        margin-bottom: 20px;
+      }
+      
+      .retry-btn {
+        background: #000000;
+        color: #ffffff;
+        border: none;
+        padding: 8px 16px;
+        border-radius: 4px;
+        font-size: 0.875rem;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        text-decoration: none;
+        display: inline-block;
+      }
+      
+      .retry-btn:hover {
+        background: #333333;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="stars"></div>
+    <div class="container">
+      <div class="error-card">
+        <div class="error-icon">⚠️</div>
+        <h1>Database Connection Failed</h1>
+        <p>Server is running but database connection failed. Please check MongoDB connection.</p>
+        <a href="/" class="retry-btn" onclick="window.location.reload()">Retry Connection</a>
+      </div>
+    </div>
+    
+    <script>
+      // Removed animations
+    </script>
+  </body>
+</html>
